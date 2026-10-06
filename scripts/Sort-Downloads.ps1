@@ -203,17 +203,28 @@ function Write-OrganizerMessage {
         [string]$Level = 'INFO'
     )
 
+    $tag = switch ($Level) {
+        'DRY_RUN' { '[DRY RUN] ' }
+        'MOVED'   { '[MOVED] ' }
+        'SKIP'    { '[SKIP] ' }
+        'ERROR'   { '[ERROR] ' }
+        'WARN'    { '[WARN] ' }
+        default   { '' }
+    }
+
+    $displayText = if ($tag -and -not $Message.StartsWith($tag) -and -not $Message.StartsWith("[$Level]")) { "$tag$Message" } else { $Message }
+
     $timestamp = (Get-Date).ToString('yyyy-MM-dd HH:mm:ss')
-    $formattedLog = "[$timestamp] [$Level] $Message"
+    $formattedLog = "[$timestamp] $displayText"
 
     if (-not $Quiet) {
         switch ($Level) {
-            'DRY_RUN' { Write-Host $Message -ForegroundColor Cyan }
-            'MOVED'   { Write-Host $Message -ForegroundColor Green }
-            'SKIP'    { Write-Host $Message -ForegroundColor DarkGray }
-            'WARN'    { Write-Warning $Message }
-            'ERROR'   { Write-Host $Message -ForegroundColor Red }
-            default   { Write-Host $Message -ForegroundColor White }
+            'DRY_RUN' { Write-Host $displayText -ForegroundColor Cyan }
+            'MOVED'   { Write-Host $displayText -ForegroundColor Green }
+            'SKIP'    { Write-Host $displayText -ForegroundColor DarkGray }
+            'WARN'    { Write-Warning $displayText }
+            'ERROR'   { Write-Host $displayText -ForegroundColor Red }
+            default   { Write-Host $displayText -ForegroundColor White }
         }
     }
 
