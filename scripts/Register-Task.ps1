@@ -1,7 +1,7 @@
 #Requires -Version 5.1
 <#
 .SYNOPSIS
-    Registers a Windows Scheduled Task for Download Organizer.
+    Registers a Windows Scheduled Task for Downloads Auto Sorter.
 
 .DESCRIPTION
     Creates a recurring Windows Scheduled Task running under the current user's
@@ -9,7 +9,7 @@
     periodically (default: every 5 minutes).
 
 .PARAMETER TaskName
-    Name of the scheduled task. Defaults to "DownloadOrganizer".
+    Name of the scheduled task. Defaults to "DownloadAutoSorter".
 
 .PARAMETER IntervalMinutes
     How often (in minutes) to run the organizer. Defaults to 5.
@@ -34,7 +34,7 @@
 
 [CmdletBinding()]
 param(
-    [string]$TaskName = 'DownloadOrganizer',
+    [string]$TaskName = 'DownloadAutoSorter',
     [int]$IntervalMinutes = 5,
     [string]$ScriptPath = '',
     [int]$MinAgeSeconds = 120,
@@ -91,11 +91,11 @@ try {
         -Action $action `
         -Trigger $trigger `
         -Settings $settings `
-        -Description "Lightweight automatic organizer for user Downloads folder."
+        -Description "Lightweight Downloads auto sorter for user Downloads folder."
 
     Write-Host "`n[SUCCESS] Scheduled task '$TaskName' registered successfully!" -ForegroundColor Green
     Write-Host "It will run every $IntervalMinutes minute(s) in the background with zero visible windows."
-    Write-Host "Activity logs will be written to: $env:LOCALAPPDATA\DownloadOrganizer\organizer.log"
+    Write-Host "Activity logs will be written to: $env:LOCALAPPDATA\DownloadAutoSorter\organizer.log"
 }
 catch {
     Write-Host "`n[ERROR] Failed to register scheduled task: $_" -ForegroundColor Red

@@ -13,11 +13,11 @@ Run the included registration script in PowerShell (no administrator privileges 
 ```
 
 By default, this configures:
-- **Task Name:** `DownloadOrganizer`
+- **Task Name:** `DownloadAutoSorter`
 - **Schedule:** Triggers every 5 minutes indefinitely
 - **Window:** Hidden (`-WindowStyle Hidden`) so no popups appear
 - **User Context:** Current logged-in user account
-- **Logging:** Enabled to `%LOCALAPPDATA%\DownloadOrganizer\organizer.log`
+- **Logging:** Enabled to `%LOCALAPPDATA%\DownloadAutoSorter\organizer.log`
 
 ### Custom Options
 
@@ -51,7 +51,7 @@ If you prefer to configure the task through the graphical interface:
 1. Press `Win + R`, type `taskschd.msc`, and press **Enter**.
 2. Click **Create Task...** on the right sidebar.
 3. Under the **General** tab:
-   - **Name:** `DownloadOrganizer`
+   - **Name:** `DownloadAutoSorter`
    - **Security options:** Select *"Run only when user is logged on"* (requires no password).
 4. Under the **Triggers** tab:
    - Click **New...**
@@ -81,10 +81,10 @@ If you prefer to configure the task through the graphical interface:
 You can check whether the task is executing successfully:
 
 1. **Check Task Status in Task Scheduler:**
-   - Look for `DownloadOrganizer` in the Task Scheduler Library.
+   - Look for `DownloadAutoSorter` in the Task Scheduler Library.
    - Verify that **Last Run Result** shows `0x0` (success).
 
 2. **Inspect the Activity Log:**
    ```powershell
-   Get-Content "$env:LOCALAPPDATA\DownloadOrganizer\organizer.log" -Tail 20
+   Get-Content "$env:LOCALAPPDATA\DownloadAutoSorter\organizer.log" -Tail 20
    ```

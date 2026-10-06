@@ -56,13 +56,13 @@ Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned -Force
 If `-LogToFile` is enabled (which is the default when registered via `Register-Task.ps1`), log files are written to:
 
 ```text
-%LOCALAPPDATA%\DownloadOrganizer\organizer.log
+%LOCALAPPDATA%\DownloadAutoSorter\organizer.log
 ```
 
 To view the most recent entries in PowerShell:
 
 ```powershell
-Get-Content -Path "$env:LOCALAPPDATA\DownloadOrganizer\organizer.log" -Tail 30
+Get-Content -Path "$env:LOCALAPPDATA\DownloadAutoSorter\organizer.log" -Tail 30
 ```
 
 ---

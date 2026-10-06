@@ -1,4 +1,4 @@
-# Windows Downloads Organizer
+# Downloads Auto Sorter
 
 A lightweight, rock-solid, open-source file organizer for the Windows `Downloads` folder powered by native **PowerShell** and **Windows Task Scheduler**.
 
@@ -57,7 +57,7 @@ Most file-sorting solutions suffer from critical flaws:
 - **Race Conditions on Incomplete Downloads:** Naive scripts move files while a browser or downloader is still streaming bytes, corrupting downloads.
 - **Silent Overwrites:** If a destination folder already has a file with the same name, simple scripts overwrite it, resulting in data loss.
 
-**Windows Downloads Organizer** is designed to solve these issues using built-in Windows components: it runs on a scheduled interval (e.g., every 5 minutes), performs its sweep in under a second, and completely terminates. Between runs, it uses **0.00% CPU and 0 MB RAM**.
+**Downloads Auto Sorter** is designed to solve these issues using built-in Windows components: it runs on a scheduled interval (e.g., every 5 minutes), performs its sweep in under a second, and completely terminates. Between runs, it uses **0.00% CPU and 0 MB RAM**.
 
 ---
 
@@ -147,8 +147,8 @@ Process Exits (0 resident memory)
 ### Clone or Download
 Clone this repository to your local machine:
 ```powershell
-git clone https://github.com/your-username/windows-download-organizer.git
-cd windows-download-organizer
+git clone https://github.com/archd3mon/Download-Auto-Sorter.git
+cd Download-Auto-Sorter
 ```
 
 ---
@@ -208,10 +208,10 @@ To set up automatic sorting in the background without popups:
 .\scripts\Register-Task.ps1
 ```
 
-This creates a user-level scheduled task named `DownloadOrganizer` that:
+This creates a user-level scheduled task named `DownloadAutoSorter` that:
 - Runs every 5 minutes in a hidden background window (`-WindowStyle Hidden`).
 - Runs only when you are logged in.
-- Appends activity logs to `%LOCALAPPDATA%\DownloadOrganizer\organizer.log`.
+- Appends activity logs to `%LOCALAPPDATA%\DownloadAutoSorter\organizer.log`.
 
 ### 2. Custom Intervals or Instant Test
 ```powershell
@@ -290,12 +290,12 @@ When running in automated or scheduled mode, pass `-LogToFile`:
 
 Logs are saved to:
 ```text
-%LOCALAPPDATA%\DownloadOrganizer\organizer.log
+%LOCALAPPDATA%\DownloadAutoSorter\organizer.log
 ```
 
 To view the log entries in real-time or view recent entries:
 ```powershell
-Get-Content -Path "$env:LOCALAPPDATA\DownloadOrganizer\organizer.log" -Tail 20
+Get-Content -Path "$env:LOCALAPPDATA\DownloadAutoSorter\organizer.log" -Tail 20
 ```
 
 ---

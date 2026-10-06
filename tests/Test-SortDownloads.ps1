@@ -34,10 +34,10 @@ if (-not (Test-Path -LiteralPath $sortScript)) {
     throw "Sort-Downloads.ps1 not found at '$sortScript'"
 }
 
-$sandboxDir = Join-Path $env:TEMP ("DownloadSorter_Test_" + [System.Guid]::NewGuid().ToString('N').Substring(0, 8))
+$sandboxDir = Join-Path $env:TEMP ("DownloadAutoSorter_Test_" + [System.Guid]::NewGuid().ToString('N').Substring(0, 8))
 
 Write-Host "==========================================================" -ForegroundColor Cyan
-Write-Host "      Download Organizer - Test Suite Execution" -ForegroundColor Cyan
+Write-Host "     Downloads Auto Sorter - Test Suite Execution" -ForegroundColor Cyan
 Write-Host "==========================================================" -ForegroundColor Cyan
 Write-Host "Sandbox Location: $sandboxDir`n"
 

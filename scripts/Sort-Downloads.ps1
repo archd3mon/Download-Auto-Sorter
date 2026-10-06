@@ -1,7 +1,7 @@
 #Requires -Version 5.1
 <#
 .SYNOPSIS
-    Sort-Downloads - Lightweight, safe Windows Downloads organizer.
+    Sort-Downloads - Downloads Auto Sorter for Windows.
 
 .DESCRIPTION
     Sorts files located strictly in the root of the user's Downloads directory
@@ -35,7 +35,7 @@
     If specified, appends output to the log file.
 
 .PARAMETER LogPath
-    Path to log file. Defaults to "$env:LOCALAPPDATA\DownloadOrganizer\organizer.log".
+    Path to log file. Defaults to "$env:LOCALAPPDATA\DownloadAutoSorter\organizer.log".
 
 .PARAMETER Quiet
     Suppresses console output (useful for non-interactive scheduled task execution).
@@ -54,7 +54,7 @@
 
 .EXAMPLE
     .\Sort-Downloads.ps1 -Apply -LogToFile
-    Organizes files and logs actions to %LOCALAPPDATA%\DownloadOrganizer\organizer.log.
+    Organizes files and logs actions to %LOCALAPPDATA%\DownloadAutoSorter\organizer.log.
 #>
 
 [CmdletBinding()]
@@ -64,7 +64,7 @@ param(
     [string]$DownloadsPath = (Join-Path $env:USERPROFILE 'Downloads'),
     [int]$MinAgeSeconds = 120,
     [switch]$LogToFile,
-    [string]$LogPath = (Join-Path $env:LOCALAPPDATA 'DownloadOrganizer\organizer.log'),
+    [string]$LogPath = (Join-Path $env:LOCALAPPDATA 'DownloadAutoSorter\organizer.log'),
     [switch]$Quiet
 )
 

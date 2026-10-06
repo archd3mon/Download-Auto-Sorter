@@ -1,22 +1,22 @@
 #Requires -Version 5.1
 <#
 .SYNOPSIS
-    Removes the Windows Scheduled Task for Download Organizer.
+    Removes the Windows Scheduled Task for Downloads Auto Sorter.
 
 .DESCRIPTION
     Safely unregisters and removes the scheduled task created by Register-Task.ps1.
 
 .PARAMETER TaskName
-    Name of the scheduled task. Defaults to "DownloadOrganizer".
+    Name of the scheduled task. Defaults to "DownloadAutoSorter".
 
 .EXAMPLE
     .\Unregister-Task.ps1
-    Unregisters the default "DownloadOrganizer" task.
+    Unregisters the default "DownloadAutoSorter" task.
 #>
 
 [CmdletBinding()]
 param(
-    [string]$TaskName = 'DownloadOrganizer'
+    [string]$TaskName = 'DownloadAutoSorter'
 )
 
 Set-StrictMode -Version Latest
