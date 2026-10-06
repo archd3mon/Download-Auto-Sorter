@@ -261,8 +261,8 @@ function Get-DownloadFiles {
         throw "Downloads directory does not exist: $Path"
     }
 
-    # Direct files only - zero recursion
-    Get-ChildItem -LiteralPath $Path -File
+    # Direct files only - zero recursion (wrap in @() for StrictMode safety)
+    return @(Get-ChildItem -LiteralPath $Path -File)
 }
 
 function Test-IsExcluded {
@@ -456,7 +456,7 @@ function Invoke-DownloadSorter {
 
     # Milestone 0 & 1: Retrieve only files directly inside Downloads root
     try {
-        $candidateFiles = Get-DownloadFiles -Path $resolvedDownloads
+        $candidateFiles = @(Get-DownloadFiles -Path $resolvedDownloads)
     }
     catch {
         Write-OrganizerMessage "Error scanning directory '$resolvedDownloads': $_" -Level 'ERROR'
@@ -464,7 +464,7 @@ function Invoke-DownloadSorter {
     }
 
     if ($candidateFiles.Count -eq 0) {
-        Write-OrganizerMessage "No files found in '$resolvedDownloads'." -Level 'INFO'
+        Write-OrganizerMessage "No loose files found in '$resolvedDownloads'. Nothing to sort." -Level 'INFO'
         return
     }
 
@@ -525,5 +525,11 @@ function Invoke-DownloadSorter {
     Write-OrganizerMessage "`nSummary: $processedCount files evaluated | $movedCount planned/moved | $skippedCount skipped | $errorCount errors" -Level 'INFO'
 }
 
-# Run the sorter
-Invoke-DownloadSorter
+# Run the sorter safely
+try {
+    Invoke-DownloadSorter
+}
+catch {
+    Write-OrganizerMessage "Unexpected error during execution: $_" -Level 'ERROR'
+    exit 1
+}
