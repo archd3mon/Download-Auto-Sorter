@@ -4,15 +4,30 @@
     Registers a Windows Scheduled Task for Downloads Auto Sorter.
 
 .DESCRIPTION
-    Creates a recurring Windows Scheduled Task running under the current user's
-    credentials (no administrator rights needed) that runs Sort-Downloads.ps1
-    periodically (default: every 5 minutes).
+    Creates a Windows Scheduled Task running under the current user's
+    credentials (no administrator rights needed) that runs Sort-Downloads.ps1:
+    1. Once on user logon / startup (default: enabled).
+    2. Periodically at a customizable interval (default: every 60 minutes).
 
 .PARAMETER TaskName
     Name of the scheduled task. Defaults to "DownloadAutoSorter".
 
 .PARAMETER IntervalMinutes
-    How often (in minutes) to run the organizer. Defaults to 5.
+    How often (in minutes) to run the organizer periodically. Defaults to 60.
+    Set to 0 or use -NoRepeat to only run on startup.
+
+.PARAMETER IntervalHours
+    Alternative to IntervalMinutes for specifying the recurring interval in hours.
+    Takes precedence over IntervalMinutes if greater than 0.
+
+.PARAMETER RunOnStartup
+    Whether to trigger the task automatically when the user logs in. Defaults to $true.
+
+.PARAMETER NoStartup
+    Switch to disable running on startup / logon (recurring interval only).
+
+.PARAMETER NoRepeat
+    Switch to disable recurring execution (startup / logon only).
 
 .PARAMETER ScriptPath
     Path to Sort-Downloads.ps1. Defaults to the sibling script in the same directory.
@@ -25,17 +40,33 @@
 
 .EXAMPLE
     .\Register-Task.ps1
-    Registers the task to run every 5 minutes under the current user.
+    Registers the task to run once on startup and then every 60 minutes.
 
 .EXAMPLE
-    .\Register-Task.ps1 -IntervalMinutes 10
-    Registers the task to run every 10 minutes.
+    .\Register-Task.ps1 -IntervalHours 2
+    Registers the task to run once on startup and then every 2 hours.
+
+.EXAMPLE
+    .\Register-Task.ps1 -IntervalMinutes 30
+    Registers the task to run once on startup and then every 30 minutes.
+
+.EXAMPLE
+    .\Register-Task.ps1 -NoRepeat
+    Registers the task to run ONLY once on startup / logon (no periodic runs).
+
+.EXAMPLE
+    .\Register-Task.ps1 -NoStartup -IntervalHours 4
+    Registers the task to run only every 4 hours without running on logon.
 #>
 
 [CmdletBinding()]
 param(
     [string]$TaskName = 'DownloadAutoSorter',
-    [int]$IntervalMinutes = 5,
+    [int]$IntervalMinutes = 60,
+    [int]$IntervalHours = 0,
+    [bool]$RunOnStartup = $true,
+    [switch]$NoStartup,
+    [switch]$NoRepeat,
     [string]$ScriptPath = '',
     [int]$MinAgeSeconds = 120,
     [switch]$RunNow
@@ -43,6 +74,17 @@ param(
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
+
+if ($IntervalHours -gt 0) {
+    $IntervalMinutes = $IntervalHours * 60
+}
+
+$enableStartup = $RunOnStartup -and -not $NoStartup
+$enableRepeat = -not $NoRepeat -and ($IntervalMinutes -gt 0)
+
+if (-not $enableStartup -and -not $enableRepeat) {
+    throw "At least one trigger must be active. Neither startup trigger nor recurring interval is enabled."
+}
 
 if ([string]::IsNullOrWhiteSpace($ScriptPath)) {
     $ScriptPath = Join-Path $PSScriptRoot 'Sort-Downloads.ps1'
@@ -54,9 +96,12 @@ if (-not (Test-Path -LiteralPath $ScriptPath)) {
 }
 
 $fullScriptPath = (Resolve-Path -LiteralPath $ScriptPath).Path
+$currentUser = if ($env:USERNAME) { $env:USERNAME } else { [System.Security.Principal.WindowsIdentity]::GetCurrent().Name }
+
 Write-Host "Configuring Scheduled Task '$TaskName'..." -ForegroundColor Cyan
 Write-Host "Target Script: $fullScriptPath"
-Write-Host "Interval: Every $IntervalMinutes minute(s)"
+Write-Host "Startup Trigger: $(if ($enableStartup) { 'Enabled (at user logon)' } else { 'Disabled' })"
+Write-Host "Recurring Interval: $(if ($enableRepeat) { "Every $IntervalMinutes minute(s)" + $(if ($IntervalMinutes -ge 60 -and ($IntervalMinutes % 60 -eq 0)) { " ($([int]($IntervalMinutes / 60)) hour(s))" } else { '' }) } else { 'Disabled (startup only)' })"
 Write-Host "Stability Window: $MinAgeSeconds seconds"
 
 # Build arguments for powershell.exe
@@ -65,9 +110,18 @@ $psArgs = "-NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File `"$fullS
 # Define Task Action
 $action = New-ScheduledTaskAction -Execute 'powershell.exe' -Argument $psArgs
 
-# Define Task Trigger: Run every N minutes indefinitely
-$now = (Get-Date)
-$trigger = New-ScheduledTaskTrigger -Once -At $now -RepetitionInterval (New-TimeSpan -Minutes $IntervalMinutes)
+# Define Task Triggers
+$triggers = @()
+
+if ($enableStartup) {
+    # Non-elevated user logon trigger
+    $triggers += New-ScheduledTaskTrigger -AtLogOn -User $currentUser
+}
+
+if ($enableRepeat) {
+    $now = (Get-Date)
+    $triggers += New-ScheduledTaskTrigger -Once -At $now -RepetitionInterval (New-TimeSpan -Minutes $IntervalMinutes)
+}
 
 # Define Task Settings: Battery friendly, auto-catch-up
 $settings = New-ScheduledTaskSettingsSet `
@@ -89,12 +143,19 @@ try {
     $null = Register-ScheduledTask `
         -TaskName $TaskName `
         -Action $action `
-        -Trigger $trigger `
+        -Trigger $triggers `
+        -User $currentUser `
         -Settings $settings `
         -Description "Lightweight Downloads auto sorter for user Downloads folder."
 
     Write-Host "`n[SUCCESS] Scheduled task '$TaskName' registered successfully!" -ForegroundColor Green
-    Write-Host "It will run every $IntervalMinutes minute(s) in the background with zero visible windows."
+    if ($enableStartup -and $enableRepeat) {
+        Write-Host "It will run once on startup (logon) and every $IntervalMinutes minute(s) in the background with zero visible windows."
+    } elseif ($enableStartup) {
+        Write-Host "It will run once on startup (logon) with zero visible windows."
+    } else {
+        Write-Host "It will run every $IntervalMinutes minute(s) in the background with zero visible windows."
+    }
     Write-Host "Activity logs will be written to: $env:LOCALAPPDATA\DownloadAutoSorter\organizer.log"
 }
 catch {

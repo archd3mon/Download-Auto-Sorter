@@ -14,7 +14,9 @@ Run the included registration script in PowerShell (no administrator privileges 
 
 By default, this configures:
 - **Task Name:** `DownloadAutoSorter`
-- **Schedule:** Triggers every 5 minutes indefinitely
+- **Triggers:**
+  - **On Startup / Logon:** Triggers immediately when you log in to Windows
+  - **Customizable Recurring Interval:** Triggers every 60 minutes (1 hour)
 - **Window:** Hidden (`-WindowStyle Hidden`) so no popups appear
 - **User Context:** Current logged-in user account
 - **Logging:** Enabled to `%LOCALAPPDATA%\DownloadAutoSorter\organizer.log`
@@ -22,8 +24,17 @@ By default, this configures:
 ### Custom Options
 
 ```powershell
-# Run every 10 minutes instead of 5
-.\scripts\Register-Task.ps1 -IntervalMinutes 10
+# Run once on startup, then every 2 hours
+.\scripts\Register-Task.ps1 -IntervalHours 2
+
+# Run once on startup, then every 30 minutes
+.\scripts\Register-Task.ps1 -IntervalMinutes 30
+
+# Run ONLY once on startup (no periodic background runs)
+.\scripts\Register-Task.ps1 -NoRepeat
+
+# Run periodically only (disable startup trigger)
+.\scripts\Register-Task.ps1 -NoStartup -IntervalHours 4
 
 # Test run immediately after registration
 .\scripts\Register-Task.ps1 -RunNow

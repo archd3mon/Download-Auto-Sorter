@@ -7,7 +7,7 @@ The organizer is built around a simple, non-resident workflow powered entirely b
 ```text
 Windows Task Scheduler
         │
-        │ Every N minutes (default: 5)
+        │ Startup & customizable interval (default: 60m)
         ▼
 PowerShell Process (powershell.exe -WindowStyle Hidden)
         │
@@ -48,7 +48,7 @@ A continuous filesystem watcher (`FileSystemWatcher`) has several pitfalls:
 - Fires immediately when a file is initially touched, requiring debouncing logic, queue management, and lock retries.
 - Can crash or become orphaned silently.
 
-By contrast, invoking a lightweight script every 5 minutes via Task Scheduler means:
+By contrast, invoking a lightweight script on startup and periodically (e.g. hourly) via Task Scheduler means:
 - The script executes in < 200 ms, performs its sweep, and exits cleanly.
 - Background resource usage between runs is literally **0.00% CPU and 0 MB RAM**.
 

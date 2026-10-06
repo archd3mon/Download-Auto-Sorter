@@ -57,7 +57,7 @@ Most file-sorting solutions suffer from critical flaws:
 - **Race Conditions on Incomplete Downloads:** Naive scripts move files while a browser or downloader is still streaming bytes, corrupting downloads.
 - **Silent Overwrites:** If a destination folder already has a file with the same name, simple scripts overwrite it, resulting in data loss.
 
-**Downloads Auto Sorter** is designed to solve these issues using built-in Windows components: it runs on a scheduled interval (e.g., every 5 minutes), performs its sweep in under a second, and completely terminates. Between runs, it uses **0.00% CPU and 0 MB RAM**.
+**Downloads Auto Sorter** is designed to solve these issues using built-in Windows components: it runs on startup and at a customizable interval (e.g., every 1 hour, or only on startup), performs its sweep in under a second, and completely terminates. Between runs, it uses **0.00% CPU and 0 MB RAM**.
 
 ---
 
@@ -91,7 +91,7 @@ Most file-sorting solutions suffer from critical flaws:
 ```text
 Windows Task Scheduler
         │
-        │ Triggers every 5 minutes
+        │ Triggers on startup / customizable interval
         ▼
 PowerShell Process (powershell.exe -WindowStyle Hidden)
         │
@@ -203,20 +203,27 @@ Summary: 2 files evaluated | 2 planned/moved | 0 skipped | 0 errors
 
 To set up automatic sorting in the background without popups:
 
-### 1. Register Task (Runs every 5 minutes)
+### 1. Register Task (Runs on startup + every 60 minutes)
 ```powershell
 .\scripts\Register-Task.ps1
 ```
 
 This creates a user-level scheduled task named `DownloadAutoSorter` that:
-- Runs every 5 minutes in a hidden background window (`-WindowStyle Hidden`).
-- Runs only when you are logged in.
+- Runs once on startup (when you log into Windows).
+- Runs every 60 minutes (or your customized interval) in a hidden background window (`-WindowStyle Hidden`).
+- Runs only under your user account with zero admin privileges required.
 - Appends activity logs to `%LOCALAPPDATA%\DownloadAutoSorter\organizer.log`.
 
 ### 2. Custom Intervals or Instant Test
 ```powershell
-# Run every 15 minutes instead
-.\scripts\Register-Task.ps1 -IntervalMinutes 15
+# Run once on startup, then every 2 hours
+.\scripts\Register-Task.ps1 -IntervalHours 2
+
+# Run once on startup, then every 30 minutes
+.\scripts\Register-Task.ps1 -IntervalMinutes 30
+
+# Run ONLY once on startup (no periodic running)
+.\scripts\Register-Task.ps1 -NoRepeat
 
 # Trigger immediately to verify
 .\scripts\Register-Task.ps1 -RunNow
